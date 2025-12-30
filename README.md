@@ -2,15 +2,15 @@
 
 A modern Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and chat with an AI assistant about the content.
 
-## 🚀 Features
+## Features
 
-- 📄 PDF document upload and parsing
-- 🔍 Semantic search using vector embeddings
-- 💬 Interactive chat interface
-- 🧠 RAG-powered question answering
-- ☁️ Easy deployment to Streamlit Cloud
+- PDF document upload and parsing
+- Semantic search using vector embeddings
+- Interactive chat interface
+- RAG-powered question answering
+- Easy deployment to Streamlit Cloud
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: Streamlit
 - **RAG Framework**: LangChain
@@ -18,7 +18,7 @@ A modern Retrieval-Augmented Generation (RAG) application that allows users to u
 - **LLM**: OpenAI API (GPT-4/GPT-3.5-turbo)
 - **PDF Processing**: PyPDF2/pdfplumber
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Python 3.8+
 - OpenAI API key (or HuggingFace for local models)
@@ -38,7 +38,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Create a `.env` file in the root directory:
 
@@ -46,13 +46,13 @@ Create a `.env` file in the root directory:
 OPENAI_API_KEY=your_api_key_here
 ```
 
-## 🏃 Running Locally
+### Running Locally
 
 ```bash
 streamlit run app.py
 ```
 
-## 📦 Deployment
+## Deployment
 
 Deploy to Streamlit Cloud:
 1. Push code to GitHub
@@ -60,7 +60,7 @@ Deploy to Streamlit Cloud:
 3. Add environment variables in Streamlit Cloud settings
 4. Deploy!
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 sift/
@@ -75,11 +75,11 @@ sift/
 └── README.md
 ```
 
-## 🤝 Contributing
+## Contributing
 
 See `PROJECT_PLAN.md` for development workflow and branch strategy.
 
-## 📝 License
+## License
 
 MIT
 
