@@ -7,14 +7,15 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
-def create_rag_chain(vector_store, api_key: str, model_name: str = "gemini-pro"):
+def create_rag_chain(vector_store, api_key: str, model_name: str = "gemini-3.0-flash-preview"):
     """
     Create LangChain RAG chain using Google Gemini.
     
     Args:
         vector_store: FAISS vector store (retriever)
         api_key: Google Gemini API key
-        model_name: Model name (default: gemini-pro)
+        model_name: Model name (default: gemini-3-flash-preview)
+                    Options: gemini-3-flash-preview, gemini-2.5-pro, gemini-2.5-flash
         
     Returns:
         RAG chain
