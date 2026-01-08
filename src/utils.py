@@ -6,8 +6,8 @@ import os
 from typing import Optional
 
 def get_api_key() -> Optional[str]:
-    """Get OpenAI API key from environment."""
-    return os.getenv("OPENAI_API_KEY")
+    """Get Google Gemini API key from environment."""
+    return os.getenv("GOOGLE_API_KEY")
 
 def validate_pdf(file) -> bool:
     """Validate uploaded PDF file."""

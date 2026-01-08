@@ -15,13 +15,14 @@ A modern Retrieval-Augmented Generation (RAG) application that allows users to u
 - **Frontend**: Streamlit
 - **RAG Framework**: LangChain
 - **Vector Store**: FAISS (local) or Pinecone (cloud)
-- **LLM**: OpenAI API (GPT-4/GPT-3.5-turbo)
+- **LLM**: Google Gemini API (gemini-pro) - **Free!**
+- **Embeddings**: Google Generative AI (embedding-001)
 - **PDF Processing**: PyPDF2/pdfplumber
 
 ## Prerequisites
 
 - Python 3.8+
-- OpenAI API key (or HuggingFace for local models)
+- Google Gemini API key (free at https://makersuite.google.com/app/apikey)
 
 ## 🔧 Installation
 
@@ -43,8 +44,10 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory:
 
 ```
-OPENAI_API_KEY=your_api_key_here
+GOOGLE_API_KEY=your_google_api_key_here
 ```
+
+Get your free API key from: https://makersuite.google.com/app/apikey
 
 ### Running Locally
 
