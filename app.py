@@ -27,17 +27,18 @@ def main():
         
         # API Key input (or use .env)
         api_key = st.text_input(
-            "OpenAI API Key",
+            "Google Gemini API Key",
             type="password",
-            value=os.getenv("OPENAI_API_KEY", ""),
-            help="Enter your OpenAI API key or set it in .env file"
+            value=os.getenv("GOOGLE_API_KEY", ""),
+            help="Enter your Google Gemini API key or set it in .env file. Get it from https://makersuite.google.com/app/apikey"
         )
         
         # Model selection
         model = st.selectbox(
             "Model",
-            ["gpt-4", "gpt-3.5-turbo"],
-            index=1
+            ["gemini-pro", "gemini-pro-vision"],
+            index=0,
+            help="gemini-pro for text, gemini-pro-vision for multimodal"
         )
         
         # Chunk size
