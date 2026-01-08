@@ -36,9 +36,9 @@ def main():
         # Model selection
         model = st.selectbox(
             "Model",
-            ["gemini-pro", "gemini-pro-vision"],
+            ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-1.5-flash"],
             index=0,
-            help="gemini-pro for text, gemini-pro-vision for multimodal"
+            help="gemini-2.0-flash-exp (experimental, fastest), gemini-1.5-pro (most capable), gemini-1.5-flash (balanced)"
         )
         
         # Chunk size
