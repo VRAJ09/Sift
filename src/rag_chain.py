@@ -4,17 +4,22 @@ Implements the Retrieval-Augmented Generation pipeline using Google Gemini
 """
 
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+try:
+    from langchain.chains import RetrievalQA
+except ImportError:
+    # Fallback for LangChain 1.0+ where chains moved to langchain-classic
+    from langchain_classic.chains import RetrievalQA
+from langchain_core.prompts import PromptTemplate
 
-def create_rag_chain(vector_store, api_key: str, model_name: str = "gemini-pro"):
+def create_rag_chain(vector_store, api_key: str, model_name: str = "gemini-3.0-flash-preview"):
     """
     Create LangChain RAG chain using Google Gemini.
     
     Args:
         vector_store: FAISS vector store (retriever)
         api_key: Google Gemini API key
-        model_name: Model name (default: gemini-pro)
+        model_name: Model name (default: gemini-3-flash-preview)
+                    Options: gemini-3-flash-preview, gemini-2.5-pro, gemini-2.5-flash
         
     Returns:
         RAG chain

@@ -82,7 +82,3 @@ sift/
 
 See `PROJECT_PLAN.md` for development workflow and branch strategy.
 
-## License
-
-MIT
-

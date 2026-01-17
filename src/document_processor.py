@@ -7,7 +7,7 @@ Document processing module:
 import pdfplumber
 from io import BytesIO
 from typing import List
-from langchain.text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
 
