@@ -4,8 +4,12 @@ Implements the Retrieval-Augmented Generation pipeline using Google Gemini
 """
 
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+try:
+    from langchain.chains import RetrievalQA
+except ImportError:
+    # Fallback for LangChain 1.0+ where chains moved to langchain-classic
+    from langchain_classic.chains import RetrievalQA
+from langchain_core.prompts import PromptTemplate
 
 def create_rag_chain(vector_store, api_key: str, model_name: str = "gemini-3.0-flash-preview"):
     """

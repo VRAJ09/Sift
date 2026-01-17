@@ -15,7 +15,7 @@ A modern Retrieval-Augmented Generation (RAG) application that allows users to u
 - **Frontend**: Streamlit
 - **RAG Framework**: LangChain
 - **Vector Store**: FAISS (local) or Pinecone (cloud)
-- **LLM**: Google Gemini API (gemini-2.0-flash-exp, gemini-1.5-pro, gemini-1.5-flash) - **Free!**
+- **LLM**: Google Gemini API (gemini-pro) - **Free!**
 - **Embeddings**: Google Generative AI (embedding-001)
 - **PDF Processing**: PyPDF2/pdfplumber
 
@@ -81,8 +81,4 @@ sift/
 ## Contributing
 
 See `PROJECT_PLAN.md` for development workflow and branch strategy.
-
-## License
-
-MIT
 
