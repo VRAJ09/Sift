@@ -8,16 +8,19 @@ from typing import List
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 
-def create_vector_store(chunks, embeddings, progress_callback=None, batch_size=10, delay_between_batches=5):
+def create_vector_store(chunks, embeddings, progress_callback=None, batch_size=100, delay_between_batches=1):
     """
-    Create FAISS vector store from text chunks with rate limiting and batched processing.
+    Create FAISS vector store from text chunks with optimized batch embedding.
+    
+    BATCHES MULTIPLE CHUNKS INTO SINGLE API CALL to avoid rate limits.
+    For example: 100 chunks in 1 API call instead of 100 separate calls.
     
     Args:
         chunks: List of text chunks (strings or Document objects)
         embeddings: Embedding model (GoogleGenerativeAIEmbeddings)
         progress_callback: Optional callback function(status, progress) for progress updates
-        batch_size: Number of chunks to embed per batch (default: 10, safe for free tier)
-        delay_between_batches: Seconds to wait between batches (default: 5)
+        batch_size: Number of chunks to embed per API call (default: 100, much more efficient)
+        delay_between_batches: Seconds to wait between batches (default: 1, less needed with batching)
         
     Returns:
         FAISS: Vector store instance
@@ -31,23 +34,25 @@ def create_vector_store(chunks, embeddings, progress_callback=None, batch_size=1
     num_docs = len(documents)
     
     if progress_callback:
-        progress_callback(f"Processing {num_docs} chunks in batches of {batch_size}...", 0)
+        progress_callback(f"Processing {num_docs} chunks in batches of {batch_size} (optimized batching)...", 0)
     
-    # Process in batches to avoid rate limits
+    # Extract all texts and metadatas upfront
+    all_texts = [doc.page_content for doc in documents]
+    all_metadatas = [doc.metadata for doc in documents]
+    
+    # Batch embeddings: send multiple chunks in single API call
     num_batches = (num_docs + batch_size - 1) // batch_size  # Ceiling division
-    vector_store = None
+    all_embeddings = []
     
     for batch_idx in range(num_batches):
         start_idx = batch_idx * batch_size
         end_idx = min(start_idx + batch_size, num_docs)
-        batch_docs = documents[start_idx:end_idx]
-        batch_texts = [doc.page_content for doc in batch_docs]
-        batch_metadatas = [doc.metadata for doc in batch_docs]
+        batch_texts = all_texts[start_idx:end_idx]
         
         if progress_callback:
             progress = int((batch_idx / num_batches) * 90)  # 0-90% for batches
             progress_callback(
-                f"Embedding batch {batch_idx + 1}/{num_batches} ({start_idx + 1}-{end_idx} of {num_docs})...",
+                f"Embedding batch {batch_idx + 1}/{num_batches} ({start_idx + 1}-{end_idx} of {num_docs}) in single API call...",
                 progress
             )
         
@@ -57,13 +62,9 @@ def create_vector_store(chunks, embeddings, progress_callback=None, batch_size=1
         
         for attempt in range(max_retries):
             try:
-                # Create or add to vector store incrementally
-                if vector_store is None:
-                    # Create initial vector store with first batch
-                    vector_store = FAISS.from_texts(batch_texts, embeddings, metadatas=batch_metadatas)
-                else:
-                    # Add subsequent batches (will embed automatically)
-                    vector_store.add_texts(batch_texts, metadatas=batch_metadatas)
+                # THIS IS THE KEY: Batch multiple chunks into ONE API call
+                batch_embeddings = embeddings.embed_documents(batch_texts)
+                all_embeddings.extend(batch_embeddings)
                 
                 break  # Success, exit retry loop
                 
@@ -106,14 +107,53 @@ def create_vector_store(chunks, embeddings, progress_callback=None, batch_size=1
                     # Not a rate limit error, raise immediately
                     raise
         
-        # Wait between batches to respect rate limits (except after last batch)
+        # Wait between batches (less needed with larger batches)
         if batch_idx < num_batches - 1:
-            if progress_callback:
-                progress_callback(f"Waiting {delay_between_batches}s before next batch...", 0)
-            time.sleep(delay_between_batches)
+            if delay_between_batches > 0:
+                if progress_callback:
+                    progress_callback(f"Waiting {delay_between_batches}s before next batch...", 0)
+                time.sleep(delay_between_batches)
+    
+    # Create FAISS vector store from all pre-computed embeddings
+    if progress_callback:
+        progress_callback("Creating vector store from embeddings...", 95)
+    
+    # Use FAISS.from_embeddings if available, otherwise create manually
+    try:
+        # Try using from_embeddings method (if available in newer LangChain)
+        vector_store = FAISS.from_embeddings(
+            text_embeddings=list(zip(all_texts, all_embeddings)),
+            embedding=embeddings,
+            metadatas=all_metadatas if all_metadatas[0] else None
+        )
+    except (AttributeError, TypeError):
+        # Fallback: Create manually using FAISS internals
+        import numpy as np
+        from faiss import IndexFlatL2
+        
+        # Get embedding dimension
+        embedding_dim = len(all_embeddings[0])
+        embeddings_array = np.array(all_embeddings).astype('float32')
+        
+        # Create FAISS index
+        index = IndexFlatL2(embedding_dim)
+        index.add(embeddings_array)
+        
+        # Create vector store with a dummy embedding to initialize structure
+        vector_store = FAISS.from_texts([all_texts[0]], embeddings)
+        
+        # Replace index with our pre-computed one
+        vector_store.index = index
+        
+        # Add all documents to docstore
+        from langchain_core.documents import Document as LC_Document
+        for i, (text, metadata) in enumerate(zip(all_texts, all_metadatas)):
+            doc = LC_Document(page_content=text, metadata=metadata if metadata else {})
+            vector_store.docstore.add({i: doc})
+            vector_store.index_to_docstore_id[i] = i
     
     if progress_callback:
-        progress_callback("Vector store created successfully!", 100)
+        progress_callback(f"✅ Vector store created! ({num_batches} API calls for {num_docs} chunks)", 100)
     
     return vector_store
 

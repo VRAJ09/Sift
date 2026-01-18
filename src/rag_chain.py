@@ -87,3 +87,41 @@ def get_embeddings(api_key: str):
         google_api_key=api_key
     )
 
+def query_document_simple(question: str, document_text: str, api_key: str, model_name: str = "gemini-2.5-flash"):
+    """
+    Query document by sending full text directly to Gemini (no embeddings required).
+    This avoids embedding API rate limits but requires document to fit in context window.
+    
+    Args:
+        question: User question
+        document_text: Full document text
+        api_key: Google Gemini API key
+        model_name: Model name (default: gemini-2.5-flash for larger context)
+        
+    Returns:
+        str: Answer from Gemini
+    """
+    # Initialize Gemini LLM
+    llm = ChatGoogleGenerativeAI(
+        model=model_name,
+        google_api_key=api_key,
+        temperature=0.7,
+        convert_system_message_to_human=True
+    )
+    
+    # Create prompt with full document
+    prompt = f"""Use the following document to answer the question at the end.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+Document:
+{document_text}
+
+Question: {question}
+
+Answer: """
+    
+    # Query Gemini directly
+    response = llm.invoke(prompt)
+    
+    return response.content
+
